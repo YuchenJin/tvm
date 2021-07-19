@@ -47,10 +47,10 @@
 #include "../../../target/source/codegen_source_base.h"
 #include "../../op/op_common.h"
 #include "../../transforms/pass_utils.h"
+#include "../te_compiler.h"
 #include "../te_compiler_cache.h"
 #include "../utils.h"
 #include "compiler.h"
-#include "../te_compiler.h"
 
 namespace tvm {
 namespace relay {
@@ -858,8 +858,8 @@ class VMFunctionCompiler : ExprFunctor<void(const Expr& expr)> {
   size_t last_register_;
   /*! \brief Total number of virtual registers allocated. */
   size_t registers_num_;
-  /*! \brief Compiler engine to lower primitive functions. */
-  TECompiler compiler_;  
+  /*! \brief TECompiler to lower primitive functions. */
+  TECompiler compiler_;
   /*! \brief Global shared meta data */
   VMCompilerContext* context_;
   /*! \brief Target devices. */
@@ -1198,7 +1198,7 @@ void VMCompiler::Codegen() {
   }
   lib = codegen::CreateMetadataModule(params_, lib, ext_mods, target_host_, runtime::Metadata());
   exec_->SetLib(lib);
-} 
+}
 
 ExprDeviceMap VMCompiler::AnalyzeContext() const {
   Device default_device;

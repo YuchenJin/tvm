@@ -127,9 +127,11 @@ class CUDADeviceAPI final : public DeviceAPI {
 
   void FreeDataSpace(Device dev, void* ptr) final {
     if (dev.device_type == kDLCUDAHost) {
+      LOG(INFO) << "freeing host memory";
       CUDA_CALL(cudaFreeHost(ptr));
     } else {
       CUDA_CALL(cudaSetDevice(dev.device_id));
+      LOG(INFO) << "freeing device memory";
       CUDA_CALL(cudaFree(ptr));
     }
   }

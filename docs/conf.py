@@ -29,6 +29,7 @@
 #
 # All configuration values have a default; values that are commented out
 # serve to show the default.
+import gc
 import sys
 import inspect
 import os, subprocess
@@ -201,12 +202,11 @@ gallery_dirs = ["tutorials", "vta/tutorials"]
 
 subsection_order = ExplicitOrder(
     [
-        "../tutorials/get_started",
+        # DO NOT CHECKIN
         "../tutorials/frontend",
-        "../tutorials/language",
+        "../tutorials/get_started",
         "../tutorials/optimize",
-        "../tutorials/autotvm",
-        "../tutorials/auto_scheduler",
+        "../tutorials/language",
         "../tutorials/dev",
         "../tutorials/topi",
         "../tutorials/deployment",
@@ -214,6 +214,8 @@ subsection_order = ExplicitOrder(
         "../vta/tutorials/frontend",
         "../vta/tutorials/optimize",
         "../vta/tutorials/autotvm",
+        "../tutorials/autotvm",
+        "../tutorials/auto_scheduler",
     ]
 )
 
@@ -234,11 +236,14 @@ within_subsection_order = {
         "relay_quick_start.py",
     ],
     "frontend": [
+        # DO NOT CHECKIN
+        "from_mxnet.py",
+        "from_keras.py",
+        "deploy_quantized.py",
+        "deploy_ssd_gluoncv.py",
         "from_pytorch.py",
         "from_tensorflow.py",
-        "from_mxnet.py",
         "from_onnx.py",
-        "from_keras.py",
         "from_tflite.py",
         "from_coreml.py",
         "from_darknet.py",
@@ -300,6 +305,15 @@ class WithinSubsectionOrder:
         return filename
 
 
+# When running the tutorials on GPUs we are dependent on the Python garbage collector
+# collecting TVM packed function closures for any device memory to also be released. This
+# is not a good setup for machines with lots of CPU ram but constrained GPU ram, so force
+# a gc after each example.
+def force_gc(gallery_cong, fname):
+    print("(Forcing Python gc after '{}' to avoid lag in reclaiming CUDA memory)".format(fname))
+    gc.collect()
+    print("(Remaining garbage: {})".format(gc.garbage))
+
 sphinx_gallery_conf = {
     "backreferences_dir": "gen_modules/backreferences",
     "doc_module": ("tvm", "numpy"),
@@ -317,6 +331,9 @@ sphinx_gallery_conf = {
     "download_all_examples": False,
     "min_reported_time": 60,
     "expected_failing_examples": [],
+    "reset_modules": (force_gc, "matplotlib", "seaborn"),
+    "abort_on_example_error": True,
+    "show_memory": True,
 }
 
 autodoc_default_options = {

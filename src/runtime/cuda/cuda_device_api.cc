@@ -112,9 +112,14 @@ class CUDADeviceAPI final : public DeviceAPI {
     ICHECK_EQ(256 % alignment, 0U) << "CUDA space is aligned at 256 bytes";
     void* ret;
     if (dev.device_type == kDLCUDAHost) {
+      LOG(INFO) << "allocating " << nbytes << "bytes on host";
       CUDA_CALL(cudaMallocHost(&ret, nbytes));
     } else {
       CUDA_CALL(cudaSetDevice(dev.device_id));
+      size_t free_mem, total_mem;
+      CUDA_CALL(cudaMemGetInfo(&free_mem, &total_mem));
+      LOG(INFO) << "allocating " << nbytes << " bytes on device, with " << free_mem
+                << " bytes currently free out of " << total_mem << " bytes available";
       CUDA_CALL(cudaMalloc(&ret, nbytes));
     }
     return ret;

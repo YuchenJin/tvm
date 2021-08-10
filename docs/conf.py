@@ -314,6 +314,7 @@ def force_gc(gallery_cong, fname):
     gc.collect()
     print("(Remaining garbage: {})".format(gc.garbage))
 
+
 sphinx_gallery_conf = {
     "backreferences_dir": "gen_modules/backreferences",
     "doc_module": ("tvm", "numpy"),
